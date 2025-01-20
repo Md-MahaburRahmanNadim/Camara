@@ -35,10 +35,9 @@ const styles = StyleSheet.create({
   floatingButton: {
     backgroundColor: "royalblue",
     padding: 15,
-
     position: "absolute",
-    bottom: 10,
     right: 10,
+    bottom: 10,
     borderRadius: 100,
   },
 });
