@@ -1,4 +1,11 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  Button,
+} from "react-native";
 import { Link } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
@@ -10,6 +17,7 @@ const HomeScreen = () => {
       <Link href={"/image-1"}>Image 1</Link>
       <Link href={"/image-2"}>Image 2</Link>
       <Link href={"/image-3"}>Image 3</Link>
+
       <Link href={"/camera"} asChild>
         <Pressable style={styles.floatingButton}>
           <MaterialIcons name="photo-camera" size={30} color="white" />

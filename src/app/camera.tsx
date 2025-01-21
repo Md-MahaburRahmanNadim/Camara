@@ -1,12 +1,11 @@
 import {
   ActivityIndicator,
   StyleSheet,
-  Text,
   View,
   Button,
   Pressable,
   Image,
-  ImageBackground,
+  SafeAreaView,
 } from "react-native";
 import { Link, router } from "expo-router";
 import {
@@ -17,6 +16,8 @@ import {
 } from "expo-camera";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRef, useState } from "react";
+import path from "path";
+import * as FileSystem from "expo-file-system";
 const CameraScreen = () => {
   const [facing, setfacing] = useState<CameraType>("back");
   // catching camera
@@ -37,7 +38,15 @@ const CameraScreen = () => {
     const pic = await camera.current?.takePictureAsync();
     setPicture(pic);
   };
-  // showing the pic preview after taking the pic
+  const saveFile = async (uri: string) => {
+    const fileName = path.parse(uri).base;
+    await FileSystem.copyAsync({
+      from: uri,
+      to: FileSystem.documentDirectory + fileName,
+    });
+    setPicture(undefined);
+    router.push("/");
+  };
   if (picture) {
     return (
       <View style={{ flex: 1 }}>
@@ -54,6 +63,11 @@ const CameraScreen = () => {
           color="white"
           style={{ position: "absolute", top: 20, left: 20 }}
         />
+        <View style={{ padding: 10 }}>
+          <SafeAreaView edges={["bottom"]}>
+            <Button title="Save" onPress={() => saveFile(picture.uri)} />
+          </SafeAreaView>
+        </View>
       </View>
     );
   }
