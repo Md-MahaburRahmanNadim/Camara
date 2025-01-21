@@ -4,16 +4,28 @@ import {
   Text,
   View,
   Button,
+  Pressable,
+  Image,
+  ImageBackground,
 } from "react-native";
 import { Link, router } from "expo-router";
-import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
+import {
+  CameraCapturedPicture,
+  CameraType,
+  CameraView,
+  useCameraPermissions,
+} from "expo-camera";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useRef, useState } from "react";
 const CameraScreen = () => {
   const [facing, setfacing] = useState<CameraType>("back");
+  // catching camera
+  const camera = useRef<CameraView>(null); // we are attatching to camera view thats will the type is cameraView
+  const [picture, setPicture] = useState<CameraCapturedPicture>();
   const switingCamera = () => {
     setfacing((current) => (current === "back" ? "front" : "back"));
   };
+
   const [permission, requestPermission] = useCameraPermissions();
   if (permission && !permission.granted && permission.canAskAgain) {
     requestPermission();
@@ -21,10 +33,36 @@ const CameraScreen = () => {
   if (!permission?.granted) {
     return <ActivityIndicator />;
   }
+  const takePicture = async () => {
+    const pic = await camera.current?.takePictureAsync();
+    setPicture(pic);
+  };
+  // showing the pic preview after taking the pic
+  if (picture) {
+    return (
+      <View style={{ flex: 1 }}>
+        <Image
+          source={{ uri: picture.uri }}
+          style={{ width: "100%", flex: 1 }}
+        ></Image>
+        <MaterialIcons
+          onPress={() => {
+            setPicture(undefined);
+          }}
+          name="close"
+          size={35}
+          color="white"
+          style={{ position: "absolute", top: 20, left: 20 }}
+        />
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing}>
+      <CameraView ref={camera} style={styles.camera} facing={facing}>
         <View style={styles.footer}>
+          <View />
+          <Pressable onPress={takePicture} style={styles.recordBtn}></Pressable>
           <MaterialIcons
             name="flip-camera-android"
             size={30}
@@ -63,8 +101,8 @@ const styles = StyleSheet.create({
   },
   closeIcon: {
     position: "absolute",
-    top: 10,
-    left: 10,
+    top: 20,
+    left: 20,
   },
   footer: {
     marginTop: "auto",
@@ -73,5 +111,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#00000099",
+    justifyContent: "space-between",
+  },
+  recordBtn: {
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 30,
+    borderBlockColor: "red",
+    borderWidth: 10,
+    borderLeftWidth: 10,
   },
 });
