@@ -6,6 +6,7 @@ import {
   Pressable,
   Image,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import { Link, router } from "expo-router";
 import {
@@ -40,11 +41,13 @@ const CameraScreen = () => {
   };
   const saveFile = async (uri: string) => {
     const fileName = path.parse(uri).base;
+    const destination = FileSystem.documentDirectory + fileName;
     await FileSystem.copyAsync({
       from: uri,
-      to: FileSystem.documentDirectory + fileName,
+      to: destination,
     });
     setPicture(undefined);
+    Alert.alert("Success", `File saved to ${destination}`);
     router.push("/");
   };
   if (picture) {
