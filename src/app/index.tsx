@@ -1,23 +1,17 @@
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  ImageBackground,
-} from "react-native";
-import { Link } from "expo-router";
+import { FlatList, Pressable, StyleSheet, View, Image } from "react-native";
+import { Link, useFocusEffect } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import * as FileSystem from "expo-file-system";
 
 const HomeScreen = () => {
   type Media = { name: string; uri: string };
   const [images, setImages] = useState<Media[]>();
-  useEffect(() => {
-    loadFiles();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadFiles();
+    }, [])
+  );
   const loadFiles = async () => {
     if (!FileSystem.documentDirectory) {
       return;
@@ -38,6 +32,8 @@ const HomeScreen = () => {
       <FlatList
         data={images}
         numColumns={3}
+        // refreshing={false}
+        // onRefresh={loadFiles}
         contentContainerStyle={{ gap: 2 }}
         columnWrapperStyle={{ gap: 2 }}
         renderItem={({ item }) => (
