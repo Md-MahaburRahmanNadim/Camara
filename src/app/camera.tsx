@@ -11,6 +11,7 @@ import {
 import { Link, router } from "expo-router";
 import {
   CameraCapturedPicture,
+  CameraMode,
   CameraType,
   CameraView,
   useCameraPermissions,
@@ -24,13 +25,13 @@ const CameraScreen = () => {
   // video recording state
   const [isRecording, setIsRecording] = useState(false);
   const [video, setVideo] = useState<string>();
+
   // catching camera
   const camera = useRef<CameraView>(null); // we are attatching to camera view thats will the type is cameraView
   const [picture, setPicture] = useState<CameraCapturedPicture>();
   const switingCamera = () => {
     setfacing((current) => (current === "back" ? "front" : "back"));
   };
-
   const [permission, requestPermission] = useCameraPermissions();
   if (permission && !permission.granted && permission.canAskAgain) {
     requestPermission();
@@ -41,21 +42,28 @@ const CameraScreen = () => {
   const onPress = async () => {
     if (isRecording) {
       camera.current?.stopRecording();
-      console.log("stop rec");
     } else {
-      const pic = await camera.current?.takePictureAsync();
-      //  setPicture(pic);
-      console.log(pic);
+      console.log("comming to picture");
+      takePicture();
     }
   };
+  const takePicture = async () => {
+    const pic = await camera.current?.takePictureAsync();
+    setPicture(pic);
+  };
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
   const startRecording = async () => {
     try {
       setIsRecording(true);
+      // when switing the camera mode in that time if we access the instant recording then the (recordAnync) method is going to break. thats why we add a 30ms delay here (https://github.com/lodev09/expaw/blob/28672d5a37b4bb12e9e0ae5988b908c08709338b/App.tsx)
+      await delay(30);
       const rec = await camera.current?.recordAsync({ maxDuration: 60 });
+      console.log(rec);
       setVideo(rec?.uri);
       setIsRecording(false);
     } catch (error) {
-      console.log(error);
+      console.log(error, "jl lk ");
     }
   };
   const saveFile = async (uri: string) => {
@@ -98,8 +106,8 @@ const CameraScreen = () => {
       <CameraView
         ref={camera}
         style={styles.camera}
-        mode="video"
         facing={facing}
+        mode={isRecording ? "video" : "picture"}
       >
         <View style={styles.footer}>
           <View />
