@@ -21,6 +21,9 @@ import path from "path";
 import * as FileSystem from "expo-file-system";
 const CameraScreen = () => {
   const [facing, setfacing] = useState<CameraType>("back");
+  // video recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [video, setVideo] = useState<string>();
   // catching camera
   const camera = useRef<CameraView>(null); // we are attatching to camera view thats will the type is cameraView
   const [picture, setPicture] = useState<CameraCapturedPicture>();
@@ -35,9 +38,25 @@ const CameraScreen = () => {
   if (!permission?.granted) {
     return <ActivityIndicator />;
   }
-  const takePicture = async () => {
-    const pic = await camera.current?.takePictureAsync();
-    setPicture(pic);
+  const onPress = async () => {
+    if (isRecording) {
+      camera.current?.stopRecording();
+      console.log("stop rec");
+    } else {
+      const pic = await camera.current?.takePictureAsync();
+      //  setPicture(pic);
+      console.log(pic);
+    }
+  };
+  const startRecording = async () => {
+    try {
+      setIsRecording(true);
+      const rec = await camera.current?.recordAsync({ maxDuration: 60 });
+      setVideo(rec?.uri);
+      setIsRecording(false);
+    } catch (error) {
+      console.log(error);
+    }
   };
   const saveFile = async (uri: string) => {
     const fileName = path.parse(uri).base;
@@ -76,10 +95,22 @@ const CameraScreen = () => {
   }
   return (
     <View style={styles.container}>
-      <CameraView ref={camera} style={styles.camera} facing={facing}>
+      <CameraView
+        ref={camera}
+        style={styles.camera}
+        mode="video"
+        facing={facing}
+      >
         <View style={styles.footer}>
           <View />
-          <Pressable onPress={takePicture} style={styles.recordBtn}></Pressable>
+          <Pressable
+            onPress={onPress}
+            onLongPress={startRecording}
+            style={[
+              styles.recordBtn,
+              { backgroundColor: isRecording ? "crimson" : "white" },
+            ]}
+          ></Pressable>
           <MaterialIcons
             name="flip-camera-android"
             size={30}
