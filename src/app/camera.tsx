@@ -11,7 +11,6 @@ import {
 import { Link, router } from "expo-router";
 import {
   CameraCapturedPicture,
-  CameraMode,
   CameraType,
   CameraView,
   useCameraPermissions,
@@ -20,6 +19,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRef, useState } from "react";
 import path from "path";
 import * as FileSystem from "expo-file-system";
+import { Video } from "expo-av";
 const CameraScreen = () => {
   const [facing, setfacing] = useState<CameraType>("back");
   // video recording state
@@ -77,16 +77,27 @@ const CameraScreen = () => {
     Alert.alert("Success", `File saved to ${destination}`);
     router.push("/");
   };
-  if (picture) {
+  if (picture || video) {
     return (
       <View style={{ flex: 1 }}>
-        <Image
-          source={{ uri: picture.uri }}
-          style={{ width: "100%", flex: 1 }}
-        ></Image>
+        {picture && (
+          <Image
+            source={{ uri: picture.uri }}
+            style={{ width: "100%", flex: 1 }}
+          ></Image>
+        )}
+        {video && (
+          <Video
+            source={{ uri: video }}
+            shouldPlay
+            isLooping
+            style={{ width: "100%", flex: 1 }}
+          ></Video>
+        )}
         <MaterialIcons
           onPress={() => {
             setPicture(undefined);
+            setVideo(undefined);
           }}
           name="close"
           size={35}
