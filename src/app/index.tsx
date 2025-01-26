@@ -3,9 +3,11 @@ import { Link, useFocusEffect } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
 import * as FileSystem from "expo-file-system";
+import { getMediaType } from "./utils/Media";
+import { Video } from "expo-av";
 
 const HomeScreen = () => {
-  type Media = { name: string; uri: string };
+  type Media = { name: string; uri: string; type: string };
   const [images, setImages] = useState<Media[]>();
   useFocusEffect(
     useCallback(() => {
@@ -23,6 +25,7 @@ const HomeScreen = () => {
       res.map((file) => ({
         name: file,
         uri: FileSystem.documentDirectory + file,
+        type: getMediaType(file),
       }))
     );
   };
@@ -39,7 +42,33 @@ const HomeScreen = () => {
         renderItem={({ item }) => (
           <Link href={`/${item.name}`} asChild>
             <Pressable>
-              <Image source={{ uri: item.uri }} style={styles.image}></Image>
+              {item.type === "image" && (
+                <Image source={{ uri: item.uri }} style={styles.image}></Image>
+              )}
+              {item.type === "video" && (
+                <>
+                  <Video
+                    source={{ uri: item.uri }}
+                    style={styles.image}
+                    shouldPlay
+                    isLooping
+                    useNativeControls
+                    isMuted
+                  ></Video>
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      { backgroundColor: "rgba(0, 0, 0, 0.5)" },
+                    ]}
+                  >
+                    <MaterialIcons
+                      name="play-circle-outline"
+                      size={24}
+                      color="white"
+                    />
+                  </View>
+                </>
+              )}
             </Pressable>
           </Link>
         )}
@@ -80,5 +109,14 @@ const styles = StyleSheet.create({
     width: 100,
     borderBlockColor: "yellow",
     borderWidth: 2,
+  },
+  iconContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

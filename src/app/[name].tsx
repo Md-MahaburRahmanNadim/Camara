@@ -2,9 +2,16 @@ import { StyleSheet, Text, View, Image } from "react-native";
 import { Link, Stack, useLocalSearchParams, router } from "expo-router";
 import * as FileSystem from "expo-file-system";
 import { MaterialIcons } from "@expo/vector-icons";
+import { getMediaType } from "./utils/Media";
+import { useVideoPlayer, VideoView } from "expo-video";
 const ImageDetailsScreen = () => {
   const { name } = useLocalSearchParams<{ name: string }>();
   const fullUri = FileSystem.documentDirectory + name;
+  const type = getMediaType(fullUri);
+  const player = useVideoPlayer(fullUri, (player) => {
+    player.loop = true;
+    player.play();
+  });
   const onDelete = async () => {
     await FileSystem.deleteAsync(fullUri);
     router.back();
@@ -13,7 +20,7 @@ const ImageDetailsScreen = () => {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: "Image ",
+          title: type === "video" ? "video" : "image",
           headerRight: () => (
             <View style={{ gap: 10, flexDirection: "row" }}>
               <MaterialIcons
@@ -32,7 +39,12 @@ const ImageDetailsScreen = () => {
           ),
         }}
       ></Stack.Screen>
-      <Image source={{ uri: fullUri }} style={styles.image}></Image>
+      {type === "image" && (
+        <Image source={{ uri: fullUri }} style={styles.image}></Image>
+      )}
+      {type === "video" && (
+        <VideoView player={player} style={styles.image}></VideoView>
+      )}
     </View>
   );
 };

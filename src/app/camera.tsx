@@ -19,7 +19,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRef, useState } from "react";
 import path from "path";
 import * as FileSystem from "expo-file-system";
-import { Video } from "expo-av";
+import { ResizeMode, Video } from "expo-av";
 const CameraScreen = () => {
   const [facing, setfacing] = useState<CameraType>("back");
   // video recording state
@@ -74,6 +74,7 @@ const CameraScreen = () => {
       to: destination,
     });
     setPicture(undefined);
+    setVideo(undefined);
     Alert.alert("Success", `File saved to ${destination}`);
     router.push("/");
   };
@@ -91,6 +92,8 @@ const CameraScreen = () => {
             source={{ uri: video }}
             shouldPlay
             isLooping
+            resizeMode={ResizeMode.COVER}
+            useNativeControls
             style={{ width: "100%", flex: 1 }}
           ></Video>
         )}
@@ -106,7 +109,10 @@ const CameraScreen = () => {
         />
         <View style={{ padding: 10 }}>
           <SafeAreaView edges={["bottom"]}>
-            <Button title="Save" onPress={() => saveFile(picture.uri)} />
+            <Button
+              title="Save"
+              onPress={() => saveFile(picture?.uri || video)}
+            />
           </SafeAreaView>
         </View>
       </View>
